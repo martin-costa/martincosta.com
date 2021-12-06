@@ -42,7 +42,7 @@ class Curve {
     }
 
     // don't add repeatred points back to back
-    if (this.points[this.points.length - 1] == p)
+    if (this.points[this.points.length - 1].equals(p))
       return false;
 
     this.points.push(p);

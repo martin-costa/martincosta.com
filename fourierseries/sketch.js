@@ -1,6 +1,8 @@
 var cnvWidth = 0.75, cnvHeight = 0.75;
 var t = 0;
-var N = 30;
+var N = 100;
+var M = 1500;
+var deltaT = 0.001;
 
 function setup() {
   cnv = createCanvas(windowWidth*cnvWidth, windowHeight*cnvHeight);
@@ -14,8 +16,8 @@ function setup() {
   approxCurve = new Curve();
 }
 
-function mousePressed() {
-
+function mouseWheel(event) {
+  deltaT = deltaT*exp(-event.delta/1000);
 }
 
 function draw() {
@@ -29,15 +31,11 @@ function draw() {
   // background color
   background(0, 0, 0);
 
-  // draw circle
-  // var u = mycurve.param(t);
-  // circle(u.x, u.y, 15);
-
-  //let rot = p5.Vector.rotate();
-
   // draw curve
-  stroke(255);
   if (done) {
+    stroke(20);
+    mycurve.draw();
+    stroke(85);
     approxCurve.draw();
 
     // draw circles
@@ -45,34 +43,34 @@ function draw() {
     stroke(200, 0, 0);
 
     s = createVector(0, 0);
-    //circle(s.x, s.y, 2*c[N].mag());
     s.add(c[N]);
     for (var i = 1; i <= N; i++) {
 
-      r = p5.Vector.rotate(c[N+i],2*PI*i*t);
+      r = p5.Vector.rotate(c[N+i],-2*PI*i*t);
       circle(s.x, s.y, 2*r.mag());
       s1 = p5.Vector.add(s,r);
       line(s.x, s.y, s1.x, s1.y);
       s.add(r);
 
-      r = p5.Vector.rotate(c[N-i],-2*PI*i*t);
+      r = p5.Vector.rotate(c[N-i],2*PI*i*t);
       circle(s.x, s.y, 2*r.mag());
       s1 = p5.Vector.add(s,r);
       line(s.x, s.y, s1.x, s1.y);
       s.add(r);
     }
-
-    stroke(120);
   }
-  mycurve.draw();
+  else {
+    stroke(150);
+    mycurve.draw();
+  }
 
 }
 
 function update() {
 
-  t = t + 0.002;
-  if (t > 1)
-    t = t - 1;
+  t = t + deltaT;
+  // if (t > 1)
+  //   t = t - 1;
 
   // start darwing curve
   if (mouseIsPressed && !drawing) {
@@ -88,17 +86,24 @@ function update() {
     done = true;
 
     c = [];
-    samples = mycurve.sample(1000);
+    samples = mycurve.sample(M);
 
-    for (var i = 0; i < 2*N + 1; i++) {
-      c.push(computeCn(samples, i-N, 1000));
-    }
+    if (mycurve.points.length > 1) {
+      for (var i = 0; i < 2*N + 1; i++) {
+        c.push(computeCn(samples, i-N, M));
+      }
 
-    approxCurve = new Curve();
-    for (var i = 0; i < 1000; i++) {
-      approxCurve.addPoint(computeApprox(c, N, i/1000));
+      approxCurve = new Curve();
+      for (var i = 0; i < M; i++) {
+        approxCurve.addPoint(computeApprox(c, N, i/M));
+      }
+      approxCurve.finishCurve();
     }
-    approxCurve.finishCurve();
+    else {
+      mycurve = new Curve();
+      drawing = false;
+      done = false;
+    }
   }
 
   if (drawing) {
