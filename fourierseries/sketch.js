@@ -1,6 +1,6 @@
 var cnvWidth = 0.75, cnvHeight = 0.75;
 var t = 0;
-var N = 100;
+var N = 2;
 var M = 1500;
 var deltaT = 0.001;
 
@@ -33,7 +33,7 @@ function draw() {
 
   // draw curve
   if (done) {
-    stroke(20);
+    stroke(40);
     mycurve.draw();
     stroke(85);
     approxCurve.draw();
@@ -66,11 +66,28 @@ function draw() {
 
 }
 
+function keyPressed() {
+  if ((keyCode === 73 || keyCode === 85) && !drawing) {
+
+    // change value of N
+    if (keyCode === 85 && N > 1) {
+      N = N - pow(10, ceil(log(N)/log(10)) - 1);
+      if (done)
+        getApproximation();
+    }
+    if (keyCode === 73 && N < 1000) {
+      N = N + pow(10, ceil(log(N + 1)/log(10)) - 1);
+      if (done)
+        getApproximation();
+    }
+
+    console.log(N);
+  }
+}
+
 function update() {
 
   t = t + deltaT;
-  // if (t > 1)
-  //   t = t - 1;
 
   // start darwing curve
   if (mouseIsPressed && !drawing) {
@@ -85,28 +102,32 @@ function update() {
     drawing = false;
     done = true;
 
-    c = [];
-    samples = mycurve.sample(M);
-
-    if (mycurve.points.length > 1) {
-      for (var i = 0; i < 2*N + 1; i++) {
-        c.push(computeCn(samples, i-N, M));
-      }
-
-      approxCurve = new Curve();
-      for (var i = 0; i < M; i++) {
-        approxCurve.addPoint(computeApprox(c, N, i/M));
-      }
-      approxCurve.finishCurve();
-    }
-    else {
-      mycurve = new Curve();
-      drawing = false;
-      done = false;
-    }
+    getApproximation();
   }
 
   if (drawing) {
     mycurve.addPoint(createVector(mouseX, mouseY));
+  }
+}
+
+function getApproximation() {
+  c = [];
+  samples = mycurve.sample(M);
+
+  if (mycurve.points.length > 1) {
+    for (var i = 0; i < 2*N + 1; i++) {
+      c.push(computeCn(samples, i-N, M));
+    }
+
+    approxCurve = new Curve();
+    for (var i = 0; i < M; i++) {
+      approxCurve.addPoint(computeApprox(c, N, i/M));
+    }
+    approxCurve.finishCurve();
+  }
+  else {
+    mycurve = new Curve();
+    drawing = false;
+    done = false;
   }
 }
