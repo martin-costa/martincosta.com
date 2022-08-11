@@ -4,7 +4,7 @@ class Curve {
     this.points = [];
     this.samples = [];
 
-    this.lenth = 0;
+    this.length = 0;
 
     this.complete = false;
   }
@@ -96,14 +96,5 @@ class Curve {
       this.samples[j] = p5.Vector.add(this.points[i], p5.Vector.sub(this.points[i+1], this.points[i]).normalize().mult(target - pos));
     }
     return this.samples;
-  }
-
-  // approximates the curvature at point (i) by computing the radius of the circle that goes through
-  // the points (i-1), (i) and (i+1) and returning the inverse of the radius of this approximate
-  // osculating circle
-  static curvature(a, b, c) {
-    var s = (a + b + c) / 2.0;
-    var A = sqrt(s * (s - a) * (s - b) * (s - c));
-    return  (4.0 * A) / (a * b * c);
   }
 }
