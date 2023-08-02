@@ -1,9 +1,10 @@
 var cnvWidth = 1, cnvHeight = 1;
 var nDensity = 0.00015;
-var dt = 0.35;
-var sensitivity = 80;
+var dt = 0.4;
+var sensitivity = 70;
 var col = true;
 var maxDeg = 10;
+var space = false;
 
 var width;
 var height;
@@ -90,5 +91,10 @@ function keyPressed() {
   // F
   if (keyCode === 70) {
     maxDeg += 1;
+  }
+
+  // space
+  if (keyCode === 32) {
+    space = !space;
   }
 }
