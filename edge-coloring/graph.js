@@ -226,11 +226,10 @@ class Graph {
       }
       else {
         // draw failed edges as white
-
-        // var intensity = tradeoff + (1.0 - tradeoff)/(decay*(this.timePresent.get(i + ',' + j) + 1));
-        // stroke(150*intensity);
-        // strokeWeight(2);
-        // line(this.nodes[i].pos.x, this.nodes[i].pos.y, this.nodes[j].pos.x, this.nodes[j].pos.y);
+        var intensity = tradeoff + (1.0 - tradeoff)/(decay*(this.timePresent.get(i + ',' + j) + 1));
+        stroke(150*intensity);
+        strokeWeight(2);
+        line(this.nodes[i].pos.x, this.nodes[i].pos.y, this.nodes[j].pos.x, this.nodes[j].pos.y);
       }
     }
 
