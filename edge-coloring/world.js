@@ -8,6 +8,9 @@ var maxDeg = 10;
 var width;
 var height;
 
+var width;
+var height;
+
 function setup() {
   width = windowWidth*cnvWidth;
   height = windowHeight*cnvHeight;

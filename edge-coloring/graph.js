@@ -68,10 +68,33 @@ class Graph {
     var spatialSym = [createVector(0,0), createVector(w, 0), createVector(-w, 0), createVector(0, h), createVector(0, -h), createVector(w, h), createVector(w, -h), createVector(-w, h), createVector(-w, -h)]
 
     // compute the accelerations of the nodes
+    // for (var i = 0; i < this.n; i++) {
+    //   this.nodes[i].acc = createVector(0,0);
+    //
+    //   for (var j = 0; j < this.n; j++) {
+    //
+    //     if (i != j) {
+    //       for (var k = 0; k < spatialSym.length; k++) {
+    //         var d = p5.Vector.sub(this.nodes[i].pos, p5.Vector.add(this.nodes[j].pos, spatialSym[k]));
+    //         var m = d.mag();
+    //         d.normalize();
+    //         this.nodes[i].acc.add(d.mult(100/(m**2)));
+    //       }
+    //     }
+    //   }
+    // }
+
+    var sortedNodes = this.sortNodes();
+
+    var xSorted = sortedNodes[0];
+    var ySorted = sortedNodes[1];
+
     for (var i = 0; i < this.n; i++) {
       this.nodes[i].acc = createVector(0,0);
 
-      for (var j = 0; j < this.n; j++) {
+      var closeNodes = this.getCloseNodes(i, xSorted, ySorted);
+
+      for (var j of closeNodes) {
 
         if (i != j) {
           for (var k = 0; k < spatialSym.length; k++) {
@@ -231,5 +254,113 @@ class Graph {
       indices.splice(j,1);
     }
     return seq;
+  }
+
+  // partitions space into local chunks
+  partitionSpace(s, full) {
+
+    var partitions = new Map();
+
+    var spatialSym = [createVector(0,0), createVector(w, 0), createVector(-w, 0), createVector(0, h), createVector(0, -h), createVector(w, h), createVector(w, -h), createVector(-w, h), createVector(-w, -h)];
+
+    if (!full) {
+      spatialSym = [createVector(0,0)]
+    }
+
+    for (var i = 0; i < nodes.length; i++) {
+      for (var k = 0; k < spatialSym.length; k++) {
+
+        var p = p5.Vector.add(this.nodes[j].pos, spatialSym[k]);
+
+        var x = int(p.x/s);
+        var y = int(p.y/s);
+
+        if (!partitions.has(x + ',' + y)) {
+          partitions.set(x + ',' + y, [])
+        }
+        partitions.set(x + ',' + y, partitions.get(x + ',' + y).push(nodes[i].pos));
+      }
+    }
+  }
+
+  // sort points by x and y coords
+  sortNodes() {
+    var xSorted = [];
+    var ySorted = [];
+
+    for (var i = 0; i < this.nodes.length; i++) {
+      xSorted.push({node: i, val: this.nodes[i].pos.x});
+      ySorted.push({node: i, val: this.nodes[i].pos.y});
+    }
+
+    xSorted.sort((a, b) => {
+      return a.val - b.val;
+    });
+
+    ySorted.sort((a, b) => {
+      return a.val - b.val;
+    });
+
+    // for (var i = 0; i < this.nodes.length; i++) {
+    //   xSorted[i] = xSorted[i].node;
+    //   ySorted[i] = ySorted[i].node;
+    // }
+
+    return [xSorted, ySorted]
+  }
+
+  // returns nodes that are within d in L1 norm of i
+  getCloseNodes(i, xSorted, ySorted) {
+
+    var d = attach + sensitivity;
+
+    var closeNodes = [];
+
+    var nodesAdded = new Map();
+
+    var horOffsets = [-width, 0, width];
+    var verOffsets = [-height, 0, height];
+
+    for (var offset of horOffsets) {
+      var j = this.binarySearch(xSorted, this.nodes[i].pos.x + offset + d);
+      while (j >= 0 && xSorted[j].val >= this.nodes[i].pos.x + offset - d) {
+        if (!nodesAdded.has(xSorted[j].node) && xSorted[j].node != i) {
+          closeNodes.push(xSorted[j].node);
+          nodesAdded.set(xSorted[j].node,1);
+        }
+        j = j - 1;
+      }
+    }
+
+    for (var offset of verOffsets) {
+      var j = this.binarySearch(ySorted, this.nodes[i].pos.y + offset + d);
+      while (j >= 0 && ySorted[j].val >= this.nodes[i].pos.y + offset - d) {
+        if (!nodesAdded.has(ySorted[j].node) && ySorted[j].node != i) {
+          closeNodes.push(ySorted[j].node);
+          nodesAdded.set(ySorted[j].node,1);
+        }
+        j = j - 1;
+      }
+    }
+
+    return closeNodes;
+  }
+
+  binarySearch(x, val) {
+
+    var l = 0;
+    var r = x.length - 1;
+
+    while (l < r) {
+      var m = Math.floor((l + r) / 2);
+
+      if (x[m].val < val) {
+        l = m + 1;
+      }
+      else {
+        r = m;
+      }
+    }
+    return r;
   }
 }
