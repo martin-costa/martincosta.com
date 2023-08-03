@@ -1,4 +1,4 @@
-var cnvWidth = 0.75, cnvHeight = 0.75;
+var cnvWidth = 1, cnvHeight = 1;
 var t = 0;
 var N = 2;
 var M = 1500;
