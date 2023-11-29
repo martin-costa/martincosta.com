@@ -3,25 +3,22 @@ var maxVel = 8
 var attach = 50
 var decay = 0.75
 var tradeoff = 0.1
-var palette = [ [255, 0, 0], // red
-                [0, 255, 0], // green
-                [0, 0, 255], // blue
-                [255, 165, 0], // orange
-                [255, 255, 0], // yellow
-                [255, 20, 147], // deep pink
-                [128, 0, 128], // purple
-                [0, 255, 255], // cyan
-]
+var lambda = 200
 
 class Node {
 
   // creates a node in R^2
-  constructor(p) {
+  constructor(p, randomVel) {
 
     this.neighbors = new Map();
 
     this.pos = createVector(0,0);
-    this.vel = createVector(random(), random());
+
+    this.vel = createVector(0,0);
+    if (randomVel) {
+      this.vel = createVector(random(), random());
+    }
+
     this.acc = createVector(0,0);
 
     this.attach = random()*attach;
@@ -51,8 +48,8 @@ class Graph {
   }
 
   // insert a node into the graph
-  insertNode(p) {
-    var newNode = new Node(p);
+  insertNode(p, randomVel) {
+    var newNode = new Node(p, randomVel);
 
     this.nodes.push(newNode);
     this.degrees.push(0);
@@ -123,144 +120,121 @@ class Graph {
     }
   }
 
-  // update the coloring of the graph
-  // updateEdges() {
-  //
-  //   // remove edges no longer in range
-  //   for (var k = 0; k < this.edgeSequence.length; k++) {
-  //     var i = this.edgeSequence[k][0];
-  //     var j = this.edgeSequence[k][1];
-  //     this.timePresent.set(i + ',' + j, this.timePresent.get(i + ',' + j) + dt);
-  //
-  //     // if i and j are NOT within range
-  //     if (p5.Vector.sub(this.nodes[i].pos, this.nodes[j].pos).mag() >= max(this.nodes[i].attach, this.nodes[j].attach) + sensitivity) {
-  //       this.colors.delete(i + ',' + j);
-  //       this.colorSequences.delete(i + ',' + j);
-  //       this.nodes[i].neighbors.delete(j);
-  //       this.nodes[j].neighbors.delete(i);
-  //       this.edgeSequence.splice(k, 1);
-  //       k = k - 1;
-  //     }
-  //   }
-  //
-  //   var s = attach + sensitivity;
-  //   var partitions = this.partitionSpace(s, s, false);
-  //
-  //   // scan over all potential edges and insert new ones
-  //   for (var i = 0; i < this.nodes.length; i++) {
-  //
-  //     var closeNodes = this.getCloseNodes2(i, s, s, partitions, false);
-  //
-  //     for (var j of closeNodes) {
-  //
-  //       // if i and j are within range
-  //       if (i != j && p5.Vector.sub(this.nodes[i].pos, this.nodes[j].pos).mag() < max(this.nodes[i].attach, this.nodes[j].attach) + sensitivity) {
-  //
-  //         // if they weren't connected before, but are now
-  //         if (!this.nodes[i].neighbors.has(j) && this.nodes[i].neighbors.size < maxDeg && this.nodes[j].neighbors.size < maxDeg) {
-  //
-  //           this.nodes[i].neighbors.set(j, 1);
-  //           this.nodes[j].neighbors.set(i, 1);
-  //
-  //           var newIndex = int(random(0, this.edgeSequence.length));
-  //           this.edgeSequence.splice(newIndex, 0, [i, j]);
-  //
-  //           this.colorSequences.set(i + ',' + j, this.generateColorSeq());
-  //           this.timePresent.set(i + ',' + j, 0);
-  //         }
-  //       }
-  //     }
-  //   }
-  //
-  //   // compute the coloring from scratch, tracking changes
-  //   var blockedColors = new Map();
-  //
-  //   for (var k = 0; k < this.edgeSequence.length; k++) {
-  //     var i = this.edgeSequence[k][0];
-  //     var j = this.edgeSequence[k][1];
-  //     var seq = this.colorSequences.get(i + ',' + j);
-  //
-  //     // find first free color
-  //     var l = 0;
-  //     while (l < seq.length && (blockedColors.has(i + ',' + seq[l]) || blockedColors.has(j + ',' + seq[l]))) {
-  //       l = l + 1;
-  //     }
-  //
-  //     // set color a blocked for the endpoints
-  //     if (l < seq.length) {
-  //       blockedColors.set(i + ',' + seq[l], 1);
-  //       blockedColors.set(j + ',' + seq[l], 1);
-  //
-  //       // if the edge already had a color
-  //       if (this.colors.has(i + ',' + j) && this.colors.get(i + ',' + j) != seq[l]) {
-  //         this.timePresent.set(i + ',' + j, 0);
-  //       }
-  //       this.colors.set(i + ',' + j, seq[l]);
-  //     }
-  //     else {
-  //       this.colors.set(i + ',' + j, -1);
-  //     }
-  //   }
-  //
-  // }
-
   // draw the graph
-  draw(dt, sensitivity, col, maxDeg) {
+  draw(dt, sensitivity, col, maxDeg, lambda) {
 
-    // this.updateEdges();
-
-    // for (var k = 0; k < this.edgeSequence.length; k++) {
-    //   var i = this.edgeSequence[k][0];
-    //   var j = this.edgeSequence[k][1];
-    //   var l = this.colors.get(i + ',' + j);
-    //   if (l != -1) {
-    //     var c = palette[l];
-    //     var intensity = tradeoff + (1.0 - tradeoff)/(decay*(this.timePresent.get(i + ',' + j) + 1));
-    //
-    //     stroke(c[0]*intensity, c[1]*intensity, c[2]*intensity);
-    //     if (!col) {
-    //       stroke(150*intensity);
-    //     }
-    //     strokeWeight(2);
-    //     line(this.nodes[i].pos.x, this.nodes[i].pos.y, this.nodes[j].pos.x, this.nodes[j].pos.y);
-    //   }
-    //   else {
-    //     // draw failed edges as white
-    //     var intensity = tradeoff + (1.0 - tradeoff)/(decay*(this.timePresent.get(i + ',' + j) + 1));
-    //     stroke(150*intensity);
-    //     strokeWeight(2);
-    //     line(this.nodes[i].pos.x, this.nodes[i].pos.y, this.nodes[j].pos.x, this.nodes[j].pos.y);
-    //   }
-    // }
+    var radii = [];
 
     for (var i = 0; i < this.n; i++) {
+      radii.push(this.computeR(i, lambda));
+    }
 
-      stroke(130);
-      strokeWeight(nodeRad*2);
-      point(this.nodes[i].pos);
-
-      stroke(255);
-      strokeWeight(0.5);
+    // circles
+    stroke(85);
+    strokeWeight(1);
+    for (var i = 0; i < this.n; i++) {
       fill(0,0,0,0);
-      circle(this.nodes[i].pos.x, this.nodes[i].pos.y, 140)
+      circle(this.nodes[i].pos.x, this.nodes[i].pos.y, 2*radii[i]);
+    }
+
+    // lines
+    stroke(100);
+    strokeWeight(1);
+
+    for (var i = 0; i < this.n; i++) {
+      var sortedPoints = this.sortPointsByDistanceFromi(i);
+
+      var j = 0;
+      while (j < this.n && sortedPoints[j].val <= radii[i]) {
+
+        var v = p5.Vector.sub(this.nodes[sortedPoints[j].point].pos, this.nodes[i].pos);
+        v.normalize();
+        v.mult(radii[i] - sortedPoints[j].val);
+        v.add(this.nodes[sortedPoints[j].point].pos);
+
+        // connect centers
+        stroke(100, 0, 0);
+        line(this.nodes[i].pos.x, this.nodes[i].pos.y, this.nodes[sortedPoints[j].point].pos.x, this.nodes[sortedPoints[j].point].pos.y);
+
+        // connect point to outer
+        stroke(255);
+        line(this.nodes[sortedPoints[j].point].pos.x, this.nodes[sortedPoints[j].point].pos.y, v.x, v.y);
+
+        j = j + 1;
+      }
+    }
+
+    //points
+    stroke(130);
+    strokeWeight(nodeRad*2);
+    for (var i = 0; i < this.n; i++) {
+      point(this.nodes[i].pos);
     }
   }
 
-  // generate a color sequence
-  // generateColorSeq() {
-  //   var seq = [];
-  //   var indices = [];
-  //   for (var i = 0; i < palette.length; i++) {
-  //     indices.push(i);
-  //   }
-  //
-  //   while (indices.length != 0) {
-  //     var j = int(random(0, indices.length));
-  //     seq.push(j);
-  //     indices.splice(j,1);
-  //   }
-  //   return seq;
-  // }
+  // computes the r_i value of a node i in a trivial manner
+  computeR(i, lambda) {
+
+    var l = 0;
+    var r = this.nodes.length - 1;
+
+    var sortedPoints = this.sortPointsByDistanceFromi(i);
+
+    var mass = this.computeMass(i, this.nodes.length - 1, sortedPoints);
+
+    if (mass < lambda) {
+      return this.computeRgivenMaxPoint(i, lambda, this.nodes.length - 1, mass);
+    }
+
+    while (l < r) {
+      var m = Math.ceil((l + r) / 2);
+      mass = this.computeMass(i, m, sortedPoints);
+
+      if (mass < lambda) {
+        l = m;
+      }
+      else {
+        r = m - 1;
+      }
+    }
+
+    return this.computeRgivenMaxPoint(i, lambda, r, this.computeMass(i, r, sortedPoints), sortedPoints);
+  }
+
+  // given final point in ball, returns r
+  computeRgivenMaxPoint(i, lambda, j, mass, sortedPoints) {
+    return sortedPoints[j].val + (lambda - mass)/(j + 1);
+  }
+
+  // compute the mass of the ball around i containing the first j points
+  computeMass(i, j, sortedPoints) {
+
+    var mass = 0;
+
+    for (var l = 0; l <= j; l++) {
+      mass = mass + sortedPoints[j].val - sortedPoints[l].val;
+    }
+    return mass;
+  }
+
+  sortPointsByDistanceFromi(i) {
+
+    var sorted = [];
+
+    for (var j = 0; j < this.nodes.length; j++) {
+      sorted.push({point: j, val: p5.Vector.sub(this.nodes[i].pos, this.nodes[j].pos).mag()});
+    }
+
+    sorted.sort((a, b) => {
+      return a.val - b.val;
+    });
+
+    // for (var j = 0; j < this.nodes.length; j++) {
+    //   sorted[j] = sorted[j].point;
+    // }
+
+    return sorted
+  }
 
   // partitions space into local chunks
   partitionSpace(sw, sh, full) {

@@ -1,10 +1,11 @@
 var cnvWidth = 1, cnvHeight = 1;
-var nDensity = 0.00015;
-var dt = 0.4;
+var nDensity = 0.00004;
+var dt = 1;
 var sensitivity = 70;
 var col = true;
 var maxDeg = 10;
 var space = false;
+var lambda = 250;
 
 var width;
 var height;
@@ -22,7 +23,7 @@ function setup() {
   graph = new Graph();
 
   for (var i = 0; i < nDensity*width*height; i++) {
-    graph.insertNode(createVector(random()*windowWidth*cnvWidth, random()*windowHeight*cnvHeight));
+    graph.insertNode(createVector(random()*windowWidth*cnvWidth, random()*windowHeight*cnvHeight), true);
   }
 }
 
@@ -43,13 +44,17 @@ function draw() {
   graph.update(dt);
 
   // draw the graph
-  graph.draw(dt, sensitivity, col, maxDeg);
+  graph.draw(dt, sensitivity, col, maxDeg, lambda);
 
   // words
-  textSize(12);
-  fill(200, 0, 0, 200);
-  stroke(0, 0, 0, 0)
-  text('speed = ' + parseFloat(dt).toFixed(3) + ' (U/I), ' + 'sensitivity = ' + parseFloat(sensitivity).toFixed(3) + ' (J/K), ' + 'color = ' + col + ' (C), ' + 'max degree = ' + maxDeg + ' (D/F)', 10, windowHeight*cnvHeight - 5);
+  // textSize(12);
+  // fill(200, 0, 0, 200);
+  // stroke(0, 0, 0, 0)
+  // text('speed = ' + parseFloat(dt).toFixed(3) + ' (U/I), ' + 'sensitivity = ' + parseFloat(sensitivity).toFixed(3) + ' (J/K), ' + 'color = ' + col + ' (C), ' + 'max degree = ' + maxDeg + ' (D/F)', 10, windowHeight*cnvHeight - 5);
+}
+
+function mousePressed() {
+  graph.insertNode(createVector(mouseX, mouseY), false);
 }
 
 function keyPressed() {
@@ -70,27 +75,12 @@ function keyPressed() {
 
   // J
   if (keyCode === 74) {
-    sensitivity *= 0.95;
+    lambda *= 0.95;
   }
 
   // K
   if (keyCode === 75) {
-    sensitivity *= 1.05;
-  }
-
-  // C
-  if (keyCode === 67) {
-    col = !col;
-  }
-
-  // D
-  if (keyCode === 68 && maxDeg > 1) {
-    maxDeg -= 1;
-  }
-
-  // F
-  if (keyCode === 70) {
-    maxDeg += 1;
+    lambda *= 1.05;
   }
 
   // space
