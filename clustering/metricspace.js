@@ -123,6 +123,8 @@ class Graph {
   // draw the graph
   draw(dt, sensitivity, col, maxDeg, lambda) {
 
+    var drawCount = ceil(this.n/10) + 2;
+
     var radii = [];
 
     for (var i = 0; i < this.n; i++) {
@@ -132,7 +134,7 @@ class Graph {
     // circles
     stroke(85);
     strokeWeight(1);
-    for (var i = 0; i < this.n; i++) {
+    for (var i = 0; i < drawCount; i++) {
       fill(0,0,0,0);
       circle(this.nodes[i].pos.x, this.nodes[i].pos.y, 2*radii[i]);
     }
@@ -141,7 +143,7 @@ class Graph {
     stroke(100);
     strokeWeight(1);
 
-    for (var i = 0; i < this.n; i++) {
+    for (var i = 0; i < drawCount; i++) {
       var sortedPoints = this.sortPointsByDistanceFromi(i);
 
       var j = 0;

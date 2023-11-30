@@ -5,7 +5,7 @@ var sensitivity = 70;
 var col = true;
 var maxDeg = 10;
 var space = false;
-var lambda = 250;
+var lambda = 300;
 
 var width;
 var height;
