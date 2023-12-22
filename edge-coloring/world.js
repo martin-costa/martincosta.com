@@ -46,10 +46,12 @@ function draw() {
   graph.draw(dt, sensitivity, col, maxDeg);
 
   // words
-  textSize(12);
-  fill(200, 0, 0, 200);
-  stroke(0, 0, 0, 0)
-  text('speed = ' + parseFloat(dt).toFixed(3) + ' (U/I), ' + 'sensitivity = ' + parseFloat(sensitivity).toFixed(3) + ' (J/K), ' + 'color = ' + col + ' (C), ' + 'max degree = ' + maxDeg + ' (D/F)', 10, windowHeight*cnvHeight - 5);
+  if (space) {
+    textSize(12);
+    fill(200, 0, 0, 200);
+    stroke(0, 0, 0, 0)
+    text('speed = ' + parseFloat(dt).toFixed(3) + ' (U/I), ' + 'sensitivity = ' + parseFloat(sensitivity).toFixed(3) + ' (J/K), ' + 'color = ' + col + ' (C), ' + 'max degree = ' + maxDeg + ' (D/F)', 10, windowHeight*cnvHeight - 5);
+  }
 }
 
 function keyPressed() {
