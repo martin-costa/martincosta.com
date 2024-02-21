@@ -2,7 +2,7 @@ var nodeRad = 4
 var maxVel = 8
 var attach = 50
 var decay = 0.75
-var tradeoff = 0.1
+// var tradeoff = 0.1
 var palette = [ [255, 0, 0], // red
                 [0, 255, 0], // green
                 [0, 0, 255], // blue
@@ -205,7 +205,7 @@ class Graph {
   }
 
   // draw the graph
-  draw(dt, sensitivity, col, maxDeg) {
+  draw(dt, sensitivity, col, maxDeg, tradeoff) {
 
     this.updateEdges();
 

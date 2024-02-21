@@ -5,6 +5,7 @@ var sensitivity = 70;
 var col = true;
 var maxDeg = 10;
 var space = false;
+var tradeoff = 0.1;
 
 var width;
 var height;
@@ -43,7 +44,7 @@ function draw() {
   graph.update(dt);
 
   // draw the graph
-  graph.draw(dt, sensitivity, col, maxDeg);
+  graph.draw(dt, sensitivity, col, maxDeg, tradeoff);
 
   // words
   if (space) {
@@ -93,6 +94,16 @@ function keyPressed() {
   // F
   if (keyCode === 70) {
     maxDeg += 1;
+  }
+
+  // T
+  if (keyCode === 84) {
+    if (tradeoff == 1){
+      tradeoff = 0.1;
+    }
+    else {
+      tradeoff = 1;
+    }
   }
 
   // space
