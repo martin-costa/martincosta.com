@@ -1,8 +1,13 @@
 var cnvWidth = 1, cnvHeight = 1;
 var zoom = 1.5;
 var greedyIterations = 0;
-var greedyDelay = 0.1;
+var greedyDelay = 0.5;
 var initTime;
+
+var sequence;
+var pointSet;
+var n = 20;
+var m = 20;
 
 var width;
 var height;
@@ -19,9 +24,6 @@ function setup() {
 
 function createInstance() {
 
-  n = 20;
-  m = 20;
-
   // create a random access sequence
 
   seq = [];
@@ -36,9 +38,11 @@ function createInstance() {
 
   pointSet = new PointSet(sequence);
 
+  pointSet.greedy();
+
   initTime = millis();
 
-  greedyIterations = 0;
+  // greedyIterations = 0;
   // greedyIterations = Math.floor(millis() / (1000 * greedyDelay));
 }
 
@@ -48,9 +52,10 @@ function windowResized() {
 
 function draw() {
 
-  if ((millis() - initTime) / (1000 * greedyDelay) > greedyIterations) {
-    pointSet.greedyIteration();
-    greedyIterations++;
+  if (millis() - initTime > 1000 * greedyDelay) {
+    // randomChange();
+    // createInstance();
+    // greedyIterations++;
   }
 
   // reposition canvas
@@ -75,15 +80,31 @@ function draw() {
     zoom *= 0.98;
   }
 
-  if (greedyIterations >= m) {
-    createInstance();
-  }
+  // if (greedyIterations >= m) {
+  //   createInstance();
+  // }
 }
+
+function randomChange() {
+
+  // randomly change one element of sequence
+  let i_rand = Math.floor(Math.random() * m);
+  let q_rand = 1 - 2 * Math.floor(Math.random() * 2); // either 1 or -1
+  let newVal = (sequence.sequence[i_rand] + q_rand) % n;
+  sequence.sequence[i_rand] = newVal;
+
+  // update pointSet
+  pointSet = new PointSet(sequence);
+  pointSet.greedy();
+
+  initTime = millis();
+  // greedyIterations = Math.floor(millis() / (1000 * greedyDelay));
+} 
 
 function keyPressed() {
 
   if (keyCode == 82) {
-    setup();
+    createInstance();
   }
 
 }
