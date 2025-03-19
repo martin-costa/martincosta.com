@@ -101,6 +101,13 @@ function randomChange() {
   // greedyIterations = Math.floor(millis() / (1000 * greedyDelay));
 } 
 
+function mouseClicked() {
+  
+  pointSet.addPoint(mouseX, mouseY);
+
+  pointSet.greedy();
+}
+
 function keyPressed() {
 
   if (keyCode == 82) {

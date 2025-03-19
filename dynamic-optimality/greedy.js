@@ -27,6 +27,22 @@ class PointSet {
         this.m = sequence.m;
 
         // create an array to store the points (using a matrix representation will be inefficient for large m and n) 
+        this.points;
+        this.negativePoints;
+        this.positivePoints;
+
+        // number of points in the set
+        this.numPoints = this.m;
+
+        // keep track of number of greedy iterations
+        this.greedyIterations;
+
+        this.reset();
+    }
+
+    reset() {
+
+        // create an array to store the points (using a matrix representation will be inefficient for large m and n) 
         this.points = [];
         this.negativePoints = [];
         this.positivePoints = [];
@@ -46,10 +62,6 @@ class PointSet {
             this.positivePoints[i][this.sequence.sequence[i]] = 1;
         }
 
-        // number of points in the set
-        this.numPoints = this.m;
-
-        // keep track of number of greedy iterations
         this.greedyIterations = 0;
     }
 
@@ -186,5 +198,41 @@ class PointSet {
         }
 
         return false;
+    }
+
+    // add a point to the set based on a mouse click at (x,y)
+    addPoint(x, y) {
+
+        let gridGap = 75/zoom;
+
+        // Calculate the maximum size of the grid
+        let maxGridSize = (Math.min(width, height) - gridGap) / (zoom);
+
+        // Calculate the size of each cell to ensure square grids
+        let cellSize = maxGridSize / Math.max(this.m - 1, this.n - 1);
+
+        // Calculate the actual grid width and height
+        let gridWidth = cellSize * (this.n - 1);
+        let gridHeight = cellSize * (this.m - 1);
+
+        // Calculate the starting positions to center the grids
+        let startX1 = (width - 2 * gridWidth - gridGap) / 2;
+        let startY1 = (height - gridHeight) / 2;
+
+        // calculate the cell coordinates
+        let i = this.m - 1 - Math.floor((y - startY1 + cellSize/2) / cellSize);
+        let j = Math.floor((x - startX1 + cellSize/2) / cellSize);
+
+        if (j >= this.n) {
+            j = Math.floor((x - startX1 - gridWidth - gridGap + cellSize/2) / cellSize);
+        }
+
+        // add the point to the set
+        if (i >= 0 && i < this.m && j >= 0 && j < this.n) {
+            this.sequence.sequence[i] = j;
+            this.reset();
+            this.greedy();
+        }
+
     }
 }
